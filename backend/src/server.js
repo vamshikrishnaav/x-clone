@@ -4,6 +4,7 @@ import cors from "cors"
 import {clerkMiddleware} from '@clerk/express'
 import { connectDB } from "./config/db.js";
 import userRoutes from "./routes/user.route.js"
+import postRoutes from "./routes/post.route.js"
 
 
 const app = express()
@@ -15,6 +16,14 @@ app.get('/',(req,res)=>{
     res.send("Hello from server")
 })
 app.use("/api/users",userRoutes)
+app.use("/api/post",postRoutes)
+
+//error handling middleware
+app.use((err,req,res)=>{
+  console.error("Unhandled error:",err);
+  res.status(500).json({error:err.message || "internal server error"})
+  
+})
 
 const startServer = async () => {
   try {
