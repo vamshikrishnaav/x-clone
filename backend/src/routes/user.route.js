@@ -10,7 +10,7 @@ const router = express.Router()
 router.get("/profile/:username",getUserProfile) /* Public route */
 /** protected route */
 router.post("/sync",protectRoute,syncUser)
-router.post("/me",protectRoute,getCurrentUser)
+router.get("/me",protectRoute,getCurrentUser)
 router.put("/profile", protectRoute,updateProfile) 
 router.post("/follow/:targetUserid",protectRoute,followUser)
 export default router
