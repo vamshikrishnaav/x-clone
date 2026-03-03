@@ -7,11 +7,11 @@ export const aj = arcjet({
   characteristics: ["ip.src"],
   rules: [
     // shield protects your app from common attacks e.g. SQL injection, XSS, CSRF attacks
-    shield({ mode: "LIVE" }),
+    shield({ mode: ENV.NODE_ENV === "production" ? "LIVE" : "DRY_RUN" }),
 
     // bot detection - block all bots except search engines
     detectBot({
-      mode: "LIVE",
+      mode: ENV.NODE_ENV === "production" ? "LIVE" : "DRY_RUN",
       allow: [
         "CATEGORY:SEARCH_ENGINE",
         // allow legitimate search engine bots
@@ -21,7 +21,7 @@ export const aj = arcjet({
 
     // rate limiting with token bucket algorithm
     tokenBucket({
-      mode: "LIVE",
+      mode: ENV.NODE_ENV === "production" ? "LIVE" : "DRY_RUN",
       refillRate: 10, // tokens added per interval
       interval: 10, // interval in seconds (10 seconds)
       capacity: 15, // maximum tokens in bucket
