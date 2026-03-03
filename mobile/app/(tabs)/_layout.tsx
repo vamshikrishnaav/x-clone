@@ -20,7 +20,7 @@ const TabsLayout = () => {
             backgroundColor:"#ffff",
             borderTopWidth:1,
             borderTopColor:'#E1E8ED',
-            height:50 + insets.bottom,
+            height: 50 + insets.bottom,
             paddingTop:8
         },
         headerShown:false

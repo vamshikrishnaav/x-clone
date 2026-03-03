@@ -1,12 +1,66 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { Feather } from "@expo/vector-icons";
+import { View, TextInput, ScrollView, Text, TouchableOpacity ,ActivityIndicator} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useEffect, useState } from "react";
+import { getRedditTrends } from "../../services/reddit.js";
+
 
 const SearchScreen = () => {
-  return (
-    <View>
-      <Text>SearchScreen</Text>
-    </View>
-  )
-}
+  const [trends, setTrends] = useState([]);
+const [loading, setLoading] = useState(true);
 
-export default SearchScreen
+useEffect(()=>{
+  
+  loadTrends()
+},[])
+const loadTrends = async()=>{
+  const data = await getRedditTrends();
+  setTrends(data)
+  setLoading(false)
+}
+  return (
+    <SafeAreaView className="flex-1 bg-white">
+      {/* HEADER */}
+      <View className="px-4 py-3 border-b border-gray-100 ">
+        <View className="flex-row items-center bg-gray-100 rounded-full px-4 py-3">
+          <Feather name="search" size={20} color="#657786" />
+          <TextInput
+            placeholder="Search Twitter"
+            className="flex-1 ml-3 text-base"
+            placeholderTextColor="#657786"
+          />
+        </View>
+      </View>
+      <ScrollView className="flex-1 ">
+        <View className="p-4 ">
+          <Text className="text-xl font-bold text-gray-900 mb-4">Trending for you</Text>
+          
+          {loading ? (
+  <ActivityIndicator size="small" color="#1DA1F2" />
+) : (
+  trends.map((item, index) => (
+    <TouchableOpacity
+      key={index}
+      className="py-3 border-b border-gray-100"
+    >
+      <Text className="text-gray-500 text-sm">
+        Trending in Topic
+      </Text>
+
+      <Text className="font-bold text-gray-900 text-lg">
+        {item.topic}
+      </Text>
+
+      <Text className="text-gray-500 text-sm">
+        {item.tweets} Tweets
+      </Text>
+    </TouchableOpacity>
+  ))
+)}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default SearchScreen;
