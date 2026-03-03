@@ -14,17 +14,17 @@ export const aj = arcjet({
       mode: ENV.NODE_ENV === "production" ? "LIVE" : "DRY_RUN",
       allow: [
         "CATEGORY:SEARCH_ENGINE",
-        // allow legitimate search engine bots
-        // see full list at https://arcjet.com/bot-list
+        "CATEGORY:MONITOR", // Allow monitoring bots
+        "CATEGORY:PREVIEW", // Allow social media preview bots
       ],
     }),
 
     // rate limiting with token bucket algorithm
     tokenBucket({
       mode: ENV.NODE_ENV === "production" ? "LIVE" : "DRY_RUN",
-      refillRate: 10, // tokens added per interval
-      interval: 10, // interval in seconds (10 seconds)
-      capacity: 15, // maximum tokens in bucket
+      refillRate: 15, // tokens added per interval (increased from 10)
+      interval: 10, // interval in seconds
+      capacity: 30, // maximum tokens in bucket (increased from 15)
     }),
   ],
 });
