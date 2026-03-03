@@ -21,25 +21,57 @@ export const updateProfile = asyncHandler(async (req, res) => {
 
 export const syncUser = asyncHandler(async (req, res) => {
   const { userId } = getAuth(req);
-  const existingUser = await User.findOne({ clerkId: userId });
-  if (existingUser) {
-    return res.status(200).json({ user: existingUser, message: "User already exists" })
+
+  try {
+    const existingUser = await User.findOne({ clerkId: userId });
+    if (existingUser) {
+      return res.status(200).json({ user: existingUser, message: "User already exists" })
+    }
+
+    // fetch user from clerk
+    const clerkUser = await clerkClient.users.getUser(userId)
+
+    if (!clerkUser) {
+      return res.status(404).json({ error: "Clerk user not found" })
+    }
+
+    const email = clerkUser.emailAddresses[0].emailAddress;
+    let username = clerkUser.username || email.split("@")[0];
+
+    // Check if username is already taken in our DB
+    let userWithSameUsername = await User.findOne({ username });
+    if (userWithSameUsername) {
+      // If taken, append a random string
+      username = `${username}_${Math.floor(Math.random() * 1000)}`;
+    }
+
+    const userData = {
+      clerkId: userId,
+      email: email,
+      firstName: clerkUser.firstName || "",
+      lastName: clerkUser.lastName || "",
+      username: username,
+      profilePicture: clerkUser.imageUrl || ""
+    }
+
+    const user = await User.create(userData);
+    console.log(`User synced successfully: ${userId}`);
+    res.status(201).json({ user, message: "user created successfully" })
+
+  } catch (error) {
+    console.error("Error in syncUser:", error);
+
+    // Handle race condition where user might have been created between findOne and create
+    if (error.code === 11000) {
+      const existingUser = await User.findOne({ clerkId: userId });
+      if (existingUser) {
+        return res.status(200).json({ user: existingUser, message: "User already exists (handled conflict)" });
+      }
+      return res.status(400).json({ error: "Username or email already exists" });
+    }
+
+    throw error; // Re-throw for global error handler
   }
-  // create new user from clerk data
-
-  const clerkUser = await clerkClient.users.getUser(userId)
-
-  const userData = {
-    clerkId: userId,
-    email: clerkUser.emailAddresses[0].emailAddress,
-    firstName: clerkUser.firstName || "",
-    lastName: clerkUser.lastName || "",
-    username: clerkUser.emailAddresses[0].emailAddress.split("@")[0],
-    profilePicture: clerkUser.imageUrl || ""
-  }
-  const user = await User.create(userData);
-
-  res.status(201).json({ user, message: "user created succesfully" })
 })
 
 export const getCurrentUser = asyncHandler(async (req, res) => {

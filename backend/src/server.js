@@ -1,7 +1,7 @@
 import express from "express"
 import { ENV } from "./config/env.js";
 import cors from "cors"
-import {clerkMiddleware} from '@clerk/express'
+import { clerkMiddleware } from '@clerk/express'
 import { connectDB } from "./config/db.js";
 import userRoutes from "./routes/user.route.js"
 import postRoutes from "./routes/post.route.js"
@@ -16,26 +16,28 @@ app.use(express.json())
 
 app.use(clerkMiddleware())
 app.use(arcjetMiddleware)
-app.get('/',(req,res)=>{
-    res.send("Hello from server")
+app.get('/', (req, res) => {
+  res.send("Hello from server")
 })
-app.use("/api/users",userRoutes)
-app.use("/api/post",postRoutes)
-app.use("/api/comments",commentRoutes)
-app.use("/api/notifications",notificationRoutes)
+app.use("/api/users", userRoutes)
+app.use("/api/post", postRoutes)
+app.use("/api/comments", commentRoutes)
+app.use("/api/notifications", notificationRoutes)
 
 //error handling middleware
-app.use((err,req,res,next)=>{
-  console.error("Unhandled error:",err);
-  res.status(500).json({error:err.message || "internal server error"})
-  
+app.use((err, req, res, next) => {
+  console.error(`Unhandled error at ${req.method} ${req.url}:`, err);
+  res.status(err.status || 500).json({
+    error: err.message || "Internal server error",
+    ...(ENV.NODE_ENV !== "production" && { stack: err.stack })
+  })
 })
 
 const startServer = async () => {
   try {
     await connectDB();
 
-    
+
     if (ENV.NODE_ENV !== "production") {
       app.listen(ENV.PORT, () => console.log("Server is up and running on PORT:", ENV.PORT));
     }
