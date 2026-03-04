@@ -19,11 +19,13 @@ export const arcjetMiddleware = async (req, res, next) => {
         return res.status(403).json({
           error: "Bot access denied",
           message: "Automated requests are not allowed.",
+          debug: decision.results.map(r => ({ rule: r.rule, reason: r.reason }))
         });
       } else {
         return res.status(403).json({
           error: "Forbidden",
           message: "Access denied by security policy.",
+          debug: decision.results.map(r => ({ rule: r.rule, reason: r.reason }))
         });
       }
     }

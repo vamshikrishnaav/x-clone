@@ -17,6 +17,7 @@ export const aj = arcjet({
         "CATEGORY:MONITOR", // Allow monitoring bots
         "CATEGORY:PREVIEW", // Allow social media preview bots
         "CATEGORY:TOOL",    // Allow tools like Android emulators/Expo Go
+        "CATEGORY:CRAWLER", // Allow some crawlers that might be misidentified
       ],
     }),
 
