@@ -1,12 +1,10 @@
 import axios,{AxiosInstance} from "axios"
 import { useAuth } from "@clerk/clerk-expo"
 
-import Constants from "expo-constants";
-
 const API_BASE_URL = 
   process.env.EXPO_PUBLIC_API_URL || 
   "https://x-clone-silk-mu.vercel.app/api";
-
+//this will basically cfreate an authenticated api
 export const createApiClient = (getToken:()=> Promise<string|null>):AxiosInstance=>{
   const api = axios.create({baseURL:API_BASE_URL})
 
