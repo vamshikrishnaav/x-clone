@@ -3,6 +3,8 @@ import User from "../models/user.model.js"
 import Notification from "../models/notification.model.js"
 import { clerkClient } from "@clerk/express";
 
+import { getAuth } from "@clerk/express";
+
 export const getUserProfile = asyncHandler(async (req, res) => {
   const { username } = req.params;
   const user = await User.findOne({ username });
@@ -13,14 +15,14 @@ export const getUserProfile = asyncHandler(async (req, res) => {
 
 // update the profile
 export const updateProfile = asyncHandler(async (req, res) => {
-  const { userId } = req.auth()
+  const { userId } = getAuth(req)
   const user = await User.findOneAndUpdate({ clerkId: userId }, req.body, { new: true })
   if (!user) return res.status(404).json({ error: "User not found" })
   res.status(200).json({ user })
 })
 
 export const syncUser = asyncHandler(async (req, res) => {
-  const { userId } = req.auth();
+  const { userId } = getAuth(req);
 
   try {
     const existingUser = await User.findOne({ clerkId: userId });
@@ -75,7 +77,7 @@ export const syncUser = asyncHandler(async (req, res) => {
 })
 
 export const getCurrentUser = asyncHandler(async (req, res) => {
-  const { userId } = req.auth()
+  const { userId } = getAuth(req)
   const user = await User.findOne({ clerkId: userId });
 
   if (!user) return res.status(404).json({ error: "User not found" })
@@ -84,7 +86,7 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 })
 
 export const followUser = asyncHandler(async (req, res) => {
-  const { userId } = req.auth();
+  const { userId } = getAuth(req);
   const { targetUserId } = req.params;
 
   if (userId === targetUserId) return res.status(400).json({ error: "You cannot follow yourself" });
